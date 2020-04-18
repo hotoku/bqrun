@@ -1,17 +1,15 @@
 """Console script for bqrun."""
 import argparse
 import sys
+from bqrun import bqrun
 
 
 def main():
-    """Console script for bqrun."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument('_', nargs='*')
+    bqrun.setup_logging()
+    parser = bqrun.setup_parser()
     args = parser.parse_args()
 
-    print("Arguments: " + str(args._))
-    print("Replace this message by putting your code into "
-          "bqrun.cli.main")
+    bqrun.main(args)
     return 0
 
 

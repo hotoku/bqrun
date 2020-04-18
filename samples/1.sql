@@ -1,0 +1,3 @@
+#standardSQL
+
+select 1

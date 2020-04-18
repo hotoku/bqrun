@@ -1,5 +1,5 @@
 import unittest
-from bqrun import parse
+from bqrun import bqrun
 from io import StringIO
 
 
@@ -27,10 +27,10 @@ class TestDag(unittest.TestCase):
     select * from `p.d.t1`
     """
         ds = [
-            parse.Dependency(*parse.parse(sql1), "1.sql"),
-            parse.Dependency(*parse.parse(sql2), "2.sql")
+            bqrun.Dependency(*bqrun.parse(sql1), "1.sql"),
+            bqrun.Dependency(*bqrun.parse(sql2), "2.sql")
         ]
-        dag = parse.Dag(ds)
+        dag = bqrun.Dag(ds)
         self.assertEqual(set(dag.targets),
                          set(["done.1", "done.2"]))
         self.assertEqual(set(dag.targets["done.1"]),
@@ -50,9 +50,9 @@ create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
         ds = [
-            parse.Dependency(*parse.parse(sql1), "1.sql")
+            bqrun.Dependency(*bqrun.parse(sql1), "1.sql")
         ]
-        dag = parse.Dag(ds)
+        dag = bqrun.Dag(ds)
         self.assertEqual(set(dag.targets),
                          set(["done.1"]))
         self.assertEqual(set(dag.targets["done.1"]),
@@ -67,9 +67,9 @@ create or replace table `p.d.t1` as
 select * from unnest([1,2,3])
 """
         ds = [
-            parse.Dependency(*parse.parse(sql1), "1.sql")
+            bqrun.Dependency(*bqrun.parse(sql1), "1.sql")
         ]
-        dag = parse.Dag(ds)
+        dag = bqrun.Dag(ds)
         sio = StringIO()
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
@@ -98,10 +98,10 @@ create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
         ds = [
-            parse.Dependency(*parse.parse(sql1), "1.sql"),
-            parse.Dependency(*parse.parse(sql2), "2.sql")
+            bqrun.Dependency(*bqrun.parse(sql1), "1.sql"),
+            bqrun.Dependency(*bqrun.parse(sql2), "2.sql")
         ]
-        dag = parse.Dag(ds)
+        dag = bqrun.Dag(ds)
         sio = StringIO()
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
@@ -129,9 +129,9 @@ create or replace table `p.d.t1` as
 select * from `x`
 """
         ds = [
-            parse.Dependency(*parse.parse(sql1), "1.sql")
+            bqrun.Dependency(*bqrun.parse(sql1), "1.sql")
         ]
-        dag = parse.Dag(ds)
+        dag = bqrun.Dag(ds)
         self.assertEqual(set(dag.targets),
                          set(["done.1"]))
         self.assertEqual(set(dag.targets["done.1"]),
