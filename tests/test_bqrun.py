@@ -123,6 +123,25 @@ select * from temp1 left join temp2
         self.assertEqual(t, ["p.d.t3"])
         self.assertEqual(set(s), set(["p.d.t1", "p.d.t2"]))
 
+    def test_parse8(self):
+        """
+        cluster by and partition by
+        """
+        sql = """
+create or replace table `p.d.t4`
+partition by date(timestamp)
+cluster by uuid
+options(require_partition_filter=true) as
+select
+  timestamp,
+  uuid
+from
+  `p.d.t5`
+"""
+        t, s = bqrun.parse(sql)
+        self.assertEqual(t, ["p.d.t4"])
+        self.assertEqual(set(s), set(["p.d.t5"]))
+
 
 if __name__ == '__main__':
     unittest.main()

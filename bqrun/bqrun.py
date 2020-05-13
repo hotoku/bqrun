@@ -84,6 +84,9 @@ def create_sentence(tokens, targets, sources):
         pos += create_or_replace_term(tokens)
     pos += table_term(tokens[pos:])
     pos += table_name(tokens[pos:], targets)
+    while not(tokens[pos].ttype is Keyword and
+              tokens[pos].value.upper() == "AS"):
+        pos += 1
     pos += as_term(tokens[pos:])
     gather_sources(tokens[pos:], sources)
     return targets, sources
