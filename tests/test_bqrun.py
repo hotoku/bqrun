@@ -164,6 +164,27 @@ from
         self.assertEqual(t, ["p.d.t4"])
         self.assertEqual(set(s), set(["p.d.t5"]))
 
+    def test_parse10(self):
+        """
+        declare set
+        """
+
+        sql = """
+declare pi float64 default acos(-1);
+declare pi2 float64;
+set pi2 = 2 * pi;
+
+create or replace table `p.d.t4` as
+select
+  pi as pi,
+  pi2 as pi2
+from
+  `p.d.t5`
+"""
+        t, s = bqrun.parse(sql)
+        self.assertEqual(t, ["p.d.t4"])
+        self.assertEqual(set(s), set(["p.d.t5"]))
+
 
 if __name__ == '__main__':
     unittest.main()
