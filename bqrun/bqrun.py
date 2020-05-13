@@ -58,6 +58,17 @@ table_term = term("TABLE", Keyword)
 as_term = term("AS", Keyword)
 
 
+def keyword(val):
+    def ret(token):
+        return (token.ttype is Keyword and
+                token.value.upper() == val.upper())
+    return ret
+
+
+as_keyword = keyword("as")
+function_keyword = keyword("function")
+
+
 def create_or_replace_term(tokens):
     token = tokens[0]
     if token.ttype is DDL and \
@@ -84,8 +95,7 @@ def create_sentence(tokens, targets, sources):
         pos += create_or_replace_term(tokens)
     pos += table_term(tokens[pos:])
     pos += table_name(tokens[pos:], targets)
-    while not(tokens[pos].ttype is Keyword and
-              tokens[pos].value.upper() == "AS"):
+    while not as_keyword(tokens[pos]):
         pos += 1
     pos += as_term(tokens[pos:])
     gather_sources(tokens[pos:], sources)
