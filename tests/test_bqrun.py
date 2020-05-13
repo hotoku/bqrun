@@ -142,6 +142,28 @@ from
         self.assertEqual(t, ["p.d.t4"])
         self.assertEqual(set(s), set(["p.d.t5"]))
 
+    def test_parse9(self):
+        """
+        temporary function
+        """
+
+        sql = """
+create function pi() as (acos(-1));
+create or replace function pi2() as (acos(-1));
+create temporary function pi3() as (acos(-1));
+create temp function pi4() as (acos(-1));
+
+create or replace table `p.d.t4` as
+select
+  timestamp,
+  uuid
+from
+  `p.d.t5`
+"""
+        t, s = bqrun.parse(sql)
+        self.assertEqual(t, ["p.d.t4"])
+        self.assertEqual(set(s), set(["p.d.t5"]))
+
 
 if __name__ == '__main__':
     unittest.main()

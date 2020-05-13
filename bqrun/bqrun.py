@@ -114,6 +114,9 @@ def analyze_statement(st):
     sources, targets = [], []
     if len(tokens) == 0:
         return sources, targets
+    for t in tokens:
+        if function_keyword(t):
+            return sources, targets
     if re.match("CREATE.*", tokens[0].value.upper()):
         create_sentence(tokens, targets, sources)
     else:
