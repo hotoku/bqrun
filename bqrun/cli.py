@@ -1,5 +1,4 @@
 """Console script for bqrun."""
-import argparse
 import sys
 from bqrun import bqrun
 
