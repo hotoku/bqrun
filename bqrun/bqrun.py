@@ -161,6 +161,10 @@ class Dag:
         return re.sub(r"^done.", "", t) + ".sql"
 
     def __init__(self, ds):
+        self.targets = self.setup_targets(ds)
+        self.deps = ds
+
+    def setup_targets(self, ds):
         targets = flatten([d.targets for d in ds])
         if len(targets) != len(set(targets)):
             raise RuntimeError(
@@ -180,7 +184,7 @@ class Dag:
             for s in sources
         }
 
-        self.targets = {}
+        ret = {}
         for d in ds2:
             key = Dag.done(d.file)
             val = {d.file}
@@ -189,7 +193,8 @@ class Dag:
                 if f == d.file:
                     continue
                 val.add(Dag.done(f))
-            self.targets[key] = val
+            ret[key] = val
+        return ret
 
     def rule(self, t):
         ret = """
