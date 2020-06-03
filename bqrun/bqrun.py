@@ -161,19 +161,21 @@ class Dag:
         return re.sub(r"^done.", "", t) + ".sql"
 
     def __init__(self, ds):
-        self.targets = self.setup_targets(ds)
-        self.deps = ds
+        self.deps = self.setup_dependencies(ds)
+        self.targets = self.setup_targets()
 
-    def setup_targets(self, ds):
+    def setup_dependencies(self, ds):
         targets = flatten([d.targets for d in ds])
         if len(targets) != len(set(targets)):
             raise RuntimeError(
                 f"some targets are defined in multiple files: {targets}")
-        ds2 = [d.filter(targets) for d in ds]
-        sources = flatten([d.sources for d in ds2])
+        return [d.filter(targets) for d in ds]
+
+    def setup_targets(self):
+        sources = flatten([d.sources for d in self.deps])
 
         def search(s):
-            for d in ds2:
+            for d in self.deps:
                 if s in d.targets:
                     return d.file
             raise RuntimeError(
@@ -185,7 +187,7 @@ class Dag:
         }
 
         ret = {}
-        for d in ds2:
+        for d in self.deps:
             key = Dag.done(d.file)
             val = {d.file}
             for s in d.sources:
