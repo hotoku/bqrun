@@ -11,6 +11,7 @@ import logging
 import re
 import subprocess
 import jinja2
+import itertools as it
 
 
 def flatten(lss):
@@ -228,24 +229,105 @@ all: {{ targets }}
         ))
         sink.write(lines)
 
+    def create_dotfile(self, sink):
+        template = jinja2.Template("""
+digraph {
+  graph [
+         charset = "UTF-8",
+         labelloc = "t",
+         labeljust = "c",
+         bgcolor = "#343434",
+         fontcolor = white,
+         fontsize = 18,
+         style = "filled",
+         rankdir = TB,
+         margin = 0.2,
+         splines = spline,
+         ranksep = 1.0,
+         nodesep = 0.9
+         ];
+  node [
+        colorscheme = "rdylgn11",
+        style = "solid,filled",
+        fontsize = 16,
+        fontcolor = 6,
+        fontname = "Migu 1M",
+        color = 7,
+        fillcolor = 11,
+        height = 0.6,
+        width = 1.2
+        ];
 
-def main(args):
-    fnames = glob("*.sql")
+  edge [
+        style = solid,
+        fontsize = 14,
+        fontcolor = white,
+        fontname = "Migu 1M",
+        color = white,
+        labelfloat = true,
+        labeldistance = 2.5,
+        labelangle = 70
+        ];
+
+{% for e in edges %}
+"{{e[0]}}" -> "{{e[1]}}";
+{% endfor %}
+}
+""")
+
+        def dep2edge(dep):
+            return [
+                (s, e) for s, e in
+                it.product(dep.sources,  dep.targets)
+            ]
+        edges = flatten([
+            dep2edge(d) for d in
+            self.deps
+        ])
+        lines = template.render(dict(
+            edges=edges
+        ))
+        sink.write(lines)
+
+
+def create_makefile(dag):
+    with open("Makefile", "w") as f:
+        dag.create_makefile(f)
+
+
+def run_query(parallel, dryrun):
+    cmd = ["make", "-j", str(parallel)]
+    if dryrun:
+        cmd.append("-n")
+    subprocess.run(cmd)
+
+
+def create_graph(dag):
+    fname = "graph.dot"
+    with open(fname, "w") as f:
+        dag.create_dotfile(f)
+    cmd = ["dot", "-Kdot", "-Tpng", fname,
+           "-o" + re.sub(".dot$", ".png", fname)]
+    subprocess.run(cmd)
+
+
+def parse_files():
     dependencies = []
+    fnames = glob("*.sql")
     for fname in fnames:
         with open(fname) as f:
             sql = "\n".join(f.readlines())
         t, s = parse(sql)
         dependencies.append(Dependency(t, s, fname))
+    return dependencies
 
+
+def main(args):
+    dependencies = parse_files()
     dag = Dag(dependencies)
-    with open("Makefile", "w") as f:
-        dag.create_makefile(f)
-
-    cmd = ["make", "-j", str(args.parallel)]
-    if args.dry_run:
-        cmd.append("-n")
-    subprocess.run(cmd)
+    create_makefile(dag)
+    run_query(args.parallel, args.dry_run)
+    create_graph(dag)
 
 
 def setup_parser():
