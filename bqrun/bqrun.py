@@ -341,8 +341,8 @@ def main(args):
     dependencies = parse_files()
     dag = Dag(dependencies)
     create_makefile(dag)
-    run_query(args.parallel, args.dry_run)
     create_graph(dag)
+    run_query(args.parallel, args.dry_run)
 
 
 def setup_parser():
