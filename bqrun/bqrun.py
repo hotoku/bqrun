@@ -15,7 +15,7 @@ import itertools as it
 
 
 def flatten(lss):
-    return ft.reduce(lambda x, y: x+y, list(lss))
+    return ft.reduce(lambda x, y: x + y, list(lss))
 
 
 def is_neligible(token):
@@ -152,6 +152,20 @@ class Dependency:
         return Dependency(self.targets, s, self.file)
 
 
+def defined_file(t, deps):
+    ret = []
+    for d in deps:
+        if t in d.targets:
+            ret.append(d.file)
+    if len(ret) == 0:
+        raise RuntimeError(
+            f"source {t} is not defined anywhere")
+    if len(ret) > 1:
+        raise RuntimeError(
+            f"source {t} is defined in multiple file: {ret}")
+    return ret[0]
+
+
 class Dag:
     @staticmethod
     def done(f):
@@ -175,15 +189,8 @@ class Dag:
     def setup_targets(self):
         sources = flatten([d.sources for d in self.deps])
 
-        def search(s):
-            for d in self.deps:
-                if s in d.targets:
-                    return d.file
-            raise RuntimeError(
-                f"source {s} is not defined anywhere")
-
         s2f = {
-            s: search(s)
+            s: defined_file(s, self.deps)
             for s in sources
         }
 
@@ -276,9 +283,17 @@ digraph {
 """)
 
         def dep2edge(dep):
+            def tblname(s):
+                return s.split(".")[2]
+
+            def edgelabel(s):
+                f = defined_file(s, self.deps)
+                t = tblname(s)
+                return f"{t}[{f}]"
+
             return [
-                (s, e) for s, e in
-                it.product(dep.sources,  dep.targets)
+                (edgelabel(s), edgelabel(e)) for s, e in
+                it.product(dep.sources, dep.targets)
             ]
         edges = flatten([
             dep2edge(d) for d in
