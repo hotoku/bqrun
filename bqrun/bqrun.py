@@ -279,12 +279,16 @@ digraph {
 {% for e in edges %}
 "{{e[0]}}" -> "{{e[1]}}";
 {% endfor %}
+
+{% for n in nodes %}
+"{{n}}";
+{% endfor %}
 }
 """)
 
         def dep2edge(dep):
             def tblname(s):
-                return s.split(".")[2]
+                return s.split(".")[-1]
 
             def edgelabel(s):
                 f = defined_file(s, self.deps)
@@ -295,12 +299,15 @@ digraph {
                 (edgelabel(s), edgelabel(e)) for s, e in
                 it.product(dep.sources, dep.targets)
             ]
+
         edges = flatten([
             dep2edge(d) for d in
             self.deps
         ])
+        nodes = set(flatten(edges))
         lines = template.render(dict(
-            edges=edges
+            edges=edges,
+            nodes=nodes
         ))
         sink.write(lines)
 
@@ -350,6 +357,7 @@ def setup_parser():
     parser.add_argument("-p", "--parallel", default=8)
     parser.add_argument("-n", "--dry-run", default=False,
                         action="store_true")
+    parser.add_argument("--project", default=None)
     return parser
 
 

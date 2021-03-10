@@ -18,7 +18,7 @@ test_requirements = []
 
 setup(
     author="Yasunori Horikoshi",
-    author_email='hotoku@dtws-work.in',
+    author_email='horikoshi.et.al@gmail.com',
     python_requires='>=3.5',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -41,7 +41,7 @@ setup(
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='bqrun',
+    keywords='bigquery',
     name='bqrun',
     packages=find_packages(include=['bqrun', 'bqrun.*']),
     setup_requires=setup_requirements,
