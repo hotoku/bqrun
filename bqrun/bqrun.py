@@ -152,16 +152,24 @@ class Dependency:
         return Dependency(self.targets, s, self.file)
 
 
+class NotDefinedTableException(Exception):
+    pass
+
+
+class MultipleDefinitionExcetion(Exception):
+    pass
+
+
 def defined_file(t, deps):
     ret = []
     for d in deps:
         if t in d.targets:
             ret.append(d.file)
     if len(ret) == 0:
-        raise RuntimeError(
+        raise NotDefinedTableException(
             f"source {t} is not defined anywhere")
     if len(ret) > 1:
-        raise RuntimeError(
+        raise MultipleDefinitionExcetion(
             f"source {t} is defined in multiple file: {ret}")
     return ret[0]
 
@@ -295,9 +303,12 @@ digraph {
                 return s.split(".")[-1]
 
             def edgelabel(s):
-                f = defined_file(s, self.deps)
-                t = tblname(s)
-                return f"{t}[{f}]"
+                ret = tblname(s)
+                try:
+                    f = defined_file(s, self.deps)
+                    return ret + f"[{f}]"
+                except NotDefinedTableException:
+                    return ret
 
             return [
                 (edgelabel(s), edgelabel(e)) for s, e in
