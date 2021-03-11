@@ -137,6 +137,44 @@ select * from `x`
         self.assertEqual(set(dag.targets["done.1"]),
                          {"1.sql"})
 
+    def test_dag6(self):
+        """
+        makefile with 2 input with external table
+        """
+        sql1 = """
+create or replace table `p.d.t1` as
+select * from `p.d.t3`
+"""
+        sql2 = """
+create or replace table `p.d.t2` as
+select * from `p.d.t1`
+"""
+        ds = [
+            bqrun.Dependency(*bqrun.parse(sql1), "1.sql"),
+            bqrun.Dependency(*bqrun.parse(sql2), "2.sql")
+        ]
+        dag = bqrun.Dag(ds)
+        sio = StringIO()
+        dag.create_makefile(sio)
+        mf_act = sio.getvalue()
+        mf_exp = """
+.PHONY: all
+all: done.1 done.2
+
+done.1: 1.sql
+\tcat 1.sql | bq query
+\ttouch $@
+
+done.2: 2.sql done.1
+\tcat 2.sql | bq query
+\ttouch $@
+"""
+        self.assertEqual(remove_blank(mf_act),
+                         remove_blank(mf_exp))
+        self.assertEqual(len(dag.orig_deps), 2)
+        self.assertEqual(dag.orig_deps[0].sources,
+                         ["p.d.t3"])
+
 
 if __name__ == '__main__':
     unittest.main()

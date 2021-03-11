@@ -176,15 +176,19 @@ class Dag:
         return re.sub(r"^done.", "", t) + ".sql"
 
     def __init__(self, ds):
-        self.deps = self.setup_dependencies(ds)
+        self.deps = self.setup_dependencies(ds, True)
+        self.orig_deps = self.setup_dependencies(ds, False)
         self.targets = self.setup_targets()
 
-    def setup_dependencies(self, ds):
+    def setup_dependencies(self, ds, flter):
         targets = flatten([d.targets for d in ds])
         if len(targets) != len(set(targets)):
             raise RuntimeError(
                 f"some targets are defined in multiple files: {targets}")
-        return [d.filter(targets) for d in ds]
+        if flter:
+            return [d.filter(targets) for d in ds]
+        else:
+            return ds
 
     def setup_targets(self):
         sources = flatten([d.sources for d in self.deps])
@@ -302,7 +306,7 @@ digraph {
 
         edges = flatten([
             dep2edge(d) for d in
-            self.deps
+            self.orig_deps
         ])
         nodes = set(flatten(edges))
         lines = template.render(dict(
