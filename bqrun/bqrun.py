@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+import sys
 import functools as ft
 import argparse
 import sqlparse as sp
@@ -359,9 +360,21 @@ def parse_files():
     return dependencies
 
 
+def print_ignore_lines():
+    print("""done.*
+parse.log
+graph.png
+graph.dot""")
+
+
 def main(args):
     dependencies = parse_files()
     dag = Dag(dependencies)
+
+    if args.ignore:
+        print_ignore_lines()
+        sys.exit(0)
+
     create_makefile(dag)
     create_graph(dag)
     run_query(args.parallel, args.dry_run)
@@ -373,6 +386,8 @@ def setup_parser():
     parser.add_argument("-n", "--dry-run", default=False,
                         action="store_true")
     parser.add_argument("--project", default=None)
+    parser.add_argument("-i", "--ignore", default=False,
+                        action="store_true", help="print lines for .gitignore")
     return parser
 
 
