@@ -355,7 +355,10 @@ def parse_files():
     for fname in fnames:
         with open(fname) as f:
             sql = "\n".join(f.readlines())
-        t, s = parse(sql)
+        try:
+            t, s = parse(sql)
+        except ParseError as e:
+            raise ParseError(f"parse error in file {fname}: {str(e)}")
         dependencies.append(Dependency(t, s, fname))
     return dependencies
 
