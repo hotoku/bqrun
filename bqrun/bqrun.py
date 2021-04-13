@@ -16,6 +16,8 @@ import itertools as it
 
 
 def flatten(lss):
+    if len(lss) == 0:
+        return []
     return ft.reduce(lambda x, y: x + y, list(lss))
 
 
@@ -239,7 +241,11 @@ all: {{ targets }}
 {% for r in rules %}
 {{ r }}
 {% endfor %}
-""".strip())
+
+.PHONY: clean
+clean:
+\trm -f done.*
+""".lstrip())
         lines = template.render(dict(
             targets=" ".join(sorted(self.targets)),
             rules=[
@@ -328,13 +334,13 @@ digraph {
         sink.write(lines)
 
 
-def create_makefile(dag):
-    with open("Makefile", "w") as f:
+def create_makefile(dag, makefile):
+    with open(makefile, "w") as f:
         dag.create_makefile(f)
 
 
-def run_query(parallel, dryrun):
-    cmd = ["make", "-j", str(parallel)]
+def run_query(parallel, dryrun, makefile):
+    cmd = ["make", "-j", str(parallel), "-f", makefile]
     if dryrun:
         cmd.append("-n")
     subprocess.run(cmd)
@@ -373,14 +379,13 @@ graph.dot""")
 def main(args):
     dependencies = parse_files()
     dag = Dag(dependencies)
-
     if args.ignore:
         print_ignore_lines()
         sys.exit(0)
 
-    create_makefile(dag)
+    create_makefile(dag, args.makefile)
     create_graph(dag)
-    run_query(args.parallel, args.dry_run)
+    run_query(args.parallel, args.dry_run, args.makefile)
 
 
 def setup_parser():
@@ -391,6 +396,7 @@ def setup_parser():
     parser.add_argument("--project", default=None)
     parser.add_argument("-i", "--ignore", default=False,
                         action="store_true", help="print lines for .gitignore")
+    parser.add_argument("-m", "--makefile", default="Makefile")
     return parser
 
 
