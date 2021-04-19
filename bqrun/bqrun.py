@@ -4,9 +4,6 @@
 import sys
 import functools as ft
 import argparse
-import sqlparse as sp
-from sqlparse.tokens import Whitespace, Newline, Keyword, Name, DDL
-from sqlparse.sql import TokenList, Comment
 from glob import glob
 import logging
 import re
@@ -21,123 +18,6 @@ def flatten(lss):
     return ft.reduce(lambda x, y: x + y, list(lss))
 
 
-def is_neligible(token):
-    return (token.ttype is Whitespace) or \
-        (token.ttype is Newline) or \
-        (token.ttype is None and isinstance(token, Comment)) or \
-        (token.ttype is Name and token.value == "#standardSQL")
-
-
-def extract(tokens):
-    tokens = [t for t in tokens if not is_neligible(t)]
-    for t in tokens:
-        if isinstance(t, TokenList):
-            yield from extract(t)
-        else:
-            yield t
-
-
-class ParseError(Exception):
-    pass
-
-
-class UnexpectedToken(ParseError):
-    def __init__(self, exp, got, tokens):
-        super(UnexpectedToken, self).__init__(
-            f"expected {exp} but got {got}:\n{' '.join([t.value for t in tokens])}")
-
-
-def term(val, ttype):
-    def ret(tokens):
-        token = tokens[0]
-        if token.ttype is ttype and token.value.upper() == val.upper():
-            return 1
-        else:
-            raise UnexpectedToken(val.upper(), token.value, tokens)
-    return ret
-
-
-create_term = term("CREATE", DDL)
-table_term = term("TABLE", Keyword)
-as_term = term("AS", Keyword)
-
-
-def keyword(val):
-    def ret(token):
-        return (token.ttype is Keyword and
-                token.value.upper() == val.upper())
-    return ret
-
-
-as_keyword = keyword("as")
-function_keyword = keyword("function")
-
-
-def create_or_replace_term(tokens):
-    token = tokens[0]
-    if token.ttype is DDL and \
-       re.match(r"CREATE\s+OR\s+REPLACE", token.value.upper()):
-        return 1
-    else:
-        raise UnexpectedToken("CREATE OR REPLACE", token.value, tokens)
-
-
-def table_name(tokens, ls):
-    token = tokens[0]
-    if token.ttype is Name:
-        ls.append(token.value.replace("`", ""))
-        return 1
-    else:
-        raise UnexpectedToken("TABLE NAME", token.value, tokens)
-
-
-def create_sentence(tokens, targets, sources):
-    pos = 0
-    if tokens[pos].value.upper() == "CREATE":
-        pos += create_term(tokens)
-    else:
-        pos += create_or_replace_term(tokens)
-    pos += table_term(tokens[pos:])
-    pos += table_name(tokens[pos:], targets)
-    while not as_keyword(tokens[pos]):
-        pos += 1
-    pos += as_term(tokens[pos:])
-    gather_sources(tokens[pos:], sources)
-    return targets, sources
-
-
-def gather_sources(tokens, sources):
-    for t in tokens:
-        m = re.match("`(.+)`", t.value)
-        if m:
-            sources.append(m[1])
-
-
-def analyze_statement(st):
-    tokens = [t for t in extract(st)]
-    sources, targets = [], []
-    if len(tokens) == 0:
-        return sources, targets
-    for t in tokens:
-        if function_keyword(t):
-            return sources, targets
-    if re.match("CREATE.*", tokens[0].value.upper()):
-        create_sentence(tokens, targets, sources)
-    else:
-        gather_sources(tokens, sources)
-    return targets, sources
-
-
-def parse(sql):
-    targets = []
-    sources = []
-    statements = sp.parse(sql)
-    for s in statements:
-        t, s = analyze_statement(s)
-        targets += t
-        sources += s
-    sources2 = list(set(sources))
-    return targets, sources2
 
 
 def done(f):
@@ -358,17 +238,7 @@ def create_graph(dag):
 
 
 def parse_files():
-    dependencies = []
-    fnames = glob("*.sql")
-    for fname in fnames:
-        with open(fname) as f:
-            sql = "\n".join(f.readlines())
-        try:
-            t, s = parse(sql)
-        except ParseError as e:
-            raise ParseError(f"parse error in file {fname}: {str(e)}")
-        dependencies.append(Dependency(t, s, fname))
-    return dependencies
+    pass
 
 
 def print_ignore_lines():
