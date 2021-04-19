@@ -300,23 +300,23 @@ digraph {
 {% endfor %}
 
 {% for n in nodes %}
-"{{n}}";
+"{{n}}" [ shape = ellipse ];
 {% endfor %}
 }
 """)
 
+        def tblname(s):
+            return s.split(".")[-1]
+
+        def edgelabel(s):
+            ret = tblname(s)
+            try:
+                f = defined_file(s, self.deps)
+                return ret + f"[{f}]"
+            except NotDefinedTableException:
+                return ret
+
         def dep2edge(dep):
-            def tblname(s):
-                return s.split(".")[-1]
-
-            def edgelabel(s):
-                ret = tblname(s)
-                try:
-                    f = defined_file(s, self.deps)
-                    return ret + f"[{f}]"
-                except NotDefinedTableException:
-                    return ret
-
             return [
                 (edgelabel(s), edgelabel(e)) for s, e in
                 it.product(dep.sources, dep.targets)
@@ -326,7 +326,9 @@ digraph {
             dep2edge(d) for d in
             self.orig_deps
         ])
-        nodes = set(flatten(edges))
+        nodes = [edgelabel(t) for d in self.deps for t in d.targets] + \
+            [edgelabel(t) for d in self.deps for t in d.sources]
+
         lines = template.render(dict(
             edges=edges,
             nodes=nodes
