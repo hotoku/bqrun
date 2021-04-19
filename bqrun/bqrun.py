@@ -8,9 +8,12 @@ from glob import glob
 import logging
 import re
 import subprocess
-import jinja2
 import itertools as it
+import tempfile
 
+import jinja2
+from networkx.drawing.nx_pydot import read_dot
+import os
 
 def flatten(lss):
     if len(lss) == 0:
@@ -236,11 +239,42 @@ def create_graph(dag):
            "-o" + re.sub(".dot$", ".png", fname)]
     subprocess.run(cmd)
 
+def strip_quote(s):
+    return s.strip('"`')
 
-def parse_files():
-    pass
+def make_dependency(graph, nodes, query_node, file_):
+    sources = [graph.nodes[n] for n in graph.predecessors(query_node["id"])]
+    targets = [graph.nodes[n] for n in graph.successors(query_node["id"])]
+    s2 = [s["label"] for s in sources]
+    t2 = [t["label"] for t in targets]
+    s3 = [strip_quote(s) for s in s2]
+    t3 = [strip_quote(t) for t in t2]
+    return Dependency(t3, s3, os.path.split(strip_quote(file_))[-1])
 
+def parse_files(target_dir):
+    with tempfile.TemporaryDirectory() as d:
+        fpath = os.path.join(d, "dag.dot")
+        r = subprocess.run([
+            "alphadag",
+            "--with_tables",
+            "--output_path", fpath,
+            target_dir
+        ])
+        with open(fpath) as f:
+            sys.stderr.write("=== dotfile ===")
+            sys.stderr.write("".join(f.readlines()))
 
+        g = read_dot(fpath)
+            
+    nodes = [dict(g.nodes[n], id=n) for n in g.nodes]
+    queries = [x for x in nodes if x["type"] == "query"]
+    tables = [x for x in nodes if x["type"] == "table"]
+
+    return [
+        make_dependency(g, nodes, q, q["label"])
+        for q in queries
+    ]
+    
 def print_ignore_lines():
     print("""done.*
 parse.log
@@ -249,7 +283,7 @@ graph.dot""")
 
 
 def main(args):
-    dependencies = parse_files()
+    dependencies = parse_files(".")
     dag = Dag(dependencies)
     if args.ignore:
         print_ignore_lines()
