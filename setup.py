@@ -10,7 +10,9 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ["sqlparse", "jinja2"]
+requirements = [
+    f.strip() for f in open("./requirements.txt").readlines()
+]
 
 setup_requirements = []
 
