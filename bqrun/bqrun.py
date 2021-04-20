@@ -230,7 +230,7 @@ def create_makefile(dag, makefile):
         if l == mark:
             break
         ret.append(l)
-    ret.append("\n"*2 + mark + "\n"*2)
+    ret.append(mark + "\n"*2)
 
     ret += sio.getvalue().split("\n")
     with open(makefile, "w") as f:
