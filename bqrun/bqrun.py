@@ -10,6 +10,7 @@ import re
 import subprocess
 import itertools as it
 import tempfile
+import io
 
 import jinja2
 from networkx.drawing.nx_pydot import read_dot
@@ -117,15 +118,15 @@ class Dag:
 
     def create_makefile(self, sink):
         template = jinja2.Template("""
-.PHONY: all
-all: {{ targets }}
+.PHONY: bqrun-all
+bqrun-all: {{ targets }}
 
 {% for r in rules %}
 {{ r }}
 {% endfor %}
 
-.PHONY: clean
-clean:
+.PHONY: bqrun-clean
+bqrun-clean:
 \trm -f done.*
 """.lstrip())
         lines = template.render(dict(
@@ -219,12 +220,27 @@ digraph {
 
 
 def create_makefile(dag, makefile):
+    sio = io.StringIO()
+    dag.create_makefile(sio)
+    with open(makefile, "r") as f:
+        lines = [l.rstrip() for l in f.readlines()]
+    mark = "# === bqrun: 44d98c928b0ecb5795e5182edf8329c828cb3968 ==="
+    ret = []
+    for l in lines:
+        if l == mark:
+            break
+        ret.append(l)
+    ret.append("\n"*2 + mark + "\n"*2)
+
+    ret += sio.getvalue().split("\n")
     with open(makefile, "w") as f:
-        dag.create_makefile(f)
+        f.writelines("\n".join(ret))
+            
+        
 
 
 def run_query(parallel, dryrun, makefile):
-    cmd = ["make", "-j", str(parallel), "-f", makefile]
+    cmd = ["make", "-j", str(parallel), "-f", makefile, "bqrun-all"]
     if dryrun:
         cmd.append("-n")
     subprocess.run(cmd)
