@@ -4,7 +4,6 @@
 import sys
 import functools as ft
 import argparse
-from glob import glob
 import logging
 import re
 import subprocess
@@ -253,15 +252,24 @@ def make_dependency(graph, nodes, query_node, file_):
     return Dependency(t3, s3, os.path.split(strip_quote(file_))[-1])
 
 
+class ParseError(Exception):
+    pass
+
+
 def parse_files(target_dir):
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
-        r = subprocess.run([
+        ret = subprocess.run([
             "alphadag",
             "--with_tables",
             "--output_path", fpath,
             target_dir
-        ])
+        ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        if ret.returncode != 0:
+            raise ParseError(ret.stdout.decode("utf-8"))
         with open(fpath) as f:
             sys.stderr.write("=== dotfile ===")
             sys.stderr.write("".join(f.readlines()))
@@ -270,7 +278,6 @@ def parse_files(target_dir):
 
     nodes = [dict(g.nodes[n], id=n) for n in g.nodes]
     queries = [x for x in nodes if x["type"] == "query"]
-    tables = [x for x in nodes if x["type"] == "table"]
 
     return [
         make_dependency(g, nodes, q, q["label"])
