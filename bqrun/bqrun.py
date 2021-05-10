@@ -221,8 +221,11 @@ digraph {
 def create_makefile(dag, makefile):
     sio = io.StringIO()
     dag.create_makefile(sio)
-    with open(makefile, "r") as f:
-        lines = [l.rstrip() for l in f.readlines()]
+    if os.path.exists(makefile):
+        with open(makefile, "r") as f:
+            lines = [l.rstrip() for l in f.readlines()]
+    else:
+        lines = []
     mark = "# === bqrun: 44d98c928b0ecb5795e5182edf8329c828cb3968 ==="
     ret = []
     for l in lines:
@@ -308,11 +311,22 @@ graph.png
 graph.dot""")
 
 
+def clean(makefile):
+    subprocess.run([
+        "make",
+        "-f",
+        makefile,
+        "bqrun-clean" # todo: DRY this target name
+    ])
+
 def main(args):
     dependencies = parse_files(".")
     dag = Dag(dependencies)
     if args.ignore:
         print_ignore_lines()
+        sys.exit(0)
+    if args.clean:
+        clean(args.makefile)
         sys.exit(0)
 
     create_makefile(dag, args.makefile)
@@ -329,6 +343,7 @@ def setup_parser():
     parser.add_argument("-i", "--ignore", default=False,
                         action="store_true", help="print lines for .gitignore")
     parser.add_argument("-m", "--makefile", default="Makefile")
+    parser.add_argument("-c", "--clean", default=False, action="store_true")
     return parser
 
 
