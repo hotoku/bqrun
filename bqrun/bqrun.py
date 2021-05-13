@@ -237,8 +237,6 @@ def create_makefile(dag, makefile):
     ret += sio.getvalue().split("\n")
     with open(makefile, "w") as f:
         f.writelines("\n".join(ret))
-            
-        
 
 
 def run_query(parallel, dryrun, makefile):
@@ -316,8 +314,9 @@ def clean(makefile):
         "make",
         "-f",
         makefile,
-        "bqrun-clean" # todo: DRY this target name
+        "bqrun-clean"  # todo: DRY this target name
     ])
+
 
 def main(args):
     dependencies = parse_files(".")
