@@ -325,11 +325,13 @@ def main(args):
     if args.ignore:
         print_ignore_lines()
         sys.exit(0)
+
+    create_makefile(dag, args.makefile)
+
     if args.clean:
         clean(args.makefile)
         sys.exit(0)
 
-    create_makefile(dag, args.makefile)
     create_graph(dag)
     run_query(args.parallel, args.dry_run, args.makefile)
 
