@@ -318,13 +318,22 @@ def clean(makefile):
     ])
 
 
+def print_version():
+    from . import __version__
+    print("bqrun: version =", __version__)
+
+
 def main(args):
-    dependencies = parse_files(".")
-    dag = Dag(dependencies)
     if args.ignore:
         print_ignore_lines()
         sys.exit(0)
 
+    if args.version:
+        print_version()
+        sys.exit(0)
+
+    dependencies = parse_files(".")
+    dag = Dag(dependencies)
     create_makefile(dag, args.makefile)
 
     if args.clean:
@@ -345,6 +354,7 @@ def setup_parser():
                         action="store_true", help="print lines for .gitignore")
     parser.add_argument("-m", "--makefile", default="Makefile")
     parser.add_argument("-c", "--clean", default=False, action="store_true")
+    parser.add_argument("-V", "--version", default=False, action="store_true")
     return parser
 
 
