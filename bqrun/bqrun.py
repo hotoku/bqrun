@@ -228,10 +228,10 @@ def create_makefile(dag, makefile):
         lines = []
     mark = "# === bqrun: 44d98c928b0ecb5795e5182edf8329c828cb3968 ==="
     ret = []
-    for l in lines:
-        if l == mark:
+    for line in lines:
+        if line == mark:
             break
-        ret.append(l)
+        ret.append(line)
     ret.append(mark + "\n"*2)
 
     ret += sio.getvalue().split("\n")
