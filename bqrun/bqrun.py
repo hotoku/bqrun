@@ -323,27 +323,6 @@ def print_version():
     print("bqrun: version =", __version__)
 
 
-def main(args):
-    if args.ignore:
-        print_ignore_lines()
-        sys.exit(0)
-
-    if args.version:
-        print_version()
-        sys.exit(0)
-
-    dependencies = parse_files(".")
-    dag = Dag(dependencies)
-    create_makefile(dag, args.makefile)
-
-    if args.clean:
-        clean(args.makefile)
-        sys.exit(0)
-
-    create_graph(dag)
-    run_query(args.parallel, args.dry_run, args.makefile)
-
-
 def setup_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--parallel", default=8)
@@ -365,3 +344,24 @@ def setup_logging():
         format="[%(levelname)s]%(asctime)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
+
+
+def main(args):
+    if args.ignore:
+        print_ignore_lines()
+        sys.exit(0)
+
+    if args.version:
+        print_version()
+        sys.exit(0)
+
+    dependencies = parse_files(".")
+    dag = Dag(dependencies)
+    create_makefile(dag, args.makefile)
+
+    if args.clean:
+        clean(args.makefile)
+        sys.exit(0)
+
+    create_graph(dag)
+    run_query(args.parallel, args.dry_run, args.makefile)
