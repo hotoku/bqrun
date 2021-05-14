@@ -81,14 +81,17 @@ select * from unnest([1,2,3])
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
         mf_exp = """
-.PHONY: all
-all: done.1
+.PHONY: bqrun-all
+bqrun-all: done.1
 
 done.1: 1.sql
 \tcat 1.sql | bq query
 \ttouch $@
-""".strip()
 
+.PHONY: bqrun-clean
+bqrun-clean:
+\trm -f done.*
+""".strip()
         self.assertEqual(remove_blank(mf_act),
                          remove_blank(mf_exp))
 
@@ -113,8 +116,8 @@ select * from `p.d.t1`
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
         mf_exp = """
-.PHONY: all
-all: done.1 done.2
+.PHONY: bqrun-all
+bqrun-all: done.1 done.2
 
 done.1: 1.sql
 \tcat 1.sql | bq query
@@ -123,6 +126,10 @@ done.1: 1.sql
 done.2: 2.sql done.1
 \tcat 2.sql | bq query
 \ttouch $@
+
+.PHONY: bqrun-clean
+bqrun-clean:
+\trm -f done.*
 """
         self.assertEqual(remove_blank(mf_act),
                          remove_blank(mf_exp))
@@ -165,8 +172,8 @@ select * from `p.d.t1`
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
         mf_exp = """
-.PHONY: all
-all: done.1 done.2
+.PHONY: bqrun-all
+bqrun-all: done.1 done.2
 
 done.1: 1.sql
 \tcat 1.sql | bq query
@@ -175,6 +182,10 @@ done.1: 1.sql
 done.2: 2.sql done.1
 \tcat 2.sql | bq query
 \ttouch $@
+
+.PHONY: bqrun-clean
+bqrun-clean:
+\trm -f done.*
 """
         self.assertEqual(remove_blank(mf_act),
                          remove_blank(mf_exp))
