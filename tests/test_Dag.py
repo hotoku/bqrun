@@ -1,6 +1,10 @@
 import unittest
 from bqrun import bqrun
 from io import StringIO
+import tempfile
+
+
+from .util import dump
 
 
 def remove_blank(m):
@@ -26,11 +30,12 @@ class TestDag(unittest.TestCase):
     create or replace table `p.d.t2` as
     select * from `p.d.t1`
     """
-        ds = [
-            bqrun.Dependency(*bqrun.parse(sql1), "1.sql"),
-            bqrun.Dependency(*bqrun.parse(sql2), "2.sql")
-        ]
-        dag = bqrun.Dag(ds)
+        with tempfile.TemporaryDirectory() as d:
+            dump(sql1, d, "1")
+            dump(sql2, d, "2")
+            deps = bqrun.parse_files(d)
+
+        dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
                          set(["done.1", "done.2"]))
         self.assertEqual(set(dag.targets["done.1"]),
@@ -49,10 +54,11 @@ select * from unnest([1,2,3]);
 create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
-        ds = [
-            bqrun.Dependency(*bqrun.parse(sql1), "1.sql")
-        ]
-        dag = bqrun.Dag(ds)
+        with tempfile.TemporaryDirectory() as d:
+            dump(sql1, d, "1")
+            deps = bqrun.parse_files(d)
+
+        dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
                          set(["done.1"]))
         self.assertEqual(set(dag.targets["done.1"]),
@@ -66,10 +72,11 @@ select * from `p.d.t1`
 create or replace table `p.d.t1` as
 select * from unnest([1,2,3])
 """
-        ds = [
-            bqrun.Dependency(*bqrun.parse(sql1), "1.sql")
-        ]
-        dag = bqrun.Dag(ds)
+        with tempfile.TemporaryDirectory() as d:
+            dump(sql1, d, "1")
+            deps = bqrun.parse_files(d)
+
+        dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
@@ -97,11 +104,11 @@ select * from unnest([1,2,3])
 create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
-        ds = [
-            bqrun.Dependency(*bqrun.parse(sql1), "1.sql"),
-            bqrun.Dependency(*bqrun.parse(sql2), "2.sql")
-        ]
-        dag = bqrun.Dag(ds)
+        with tempfile.TemporaryDirectory() as d:
+            dump(sql1, d, "1")
+            dump(sql2, d, "2")
+            deps = bqrun.parse_files(d)
+        dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)
         mf_act = sio.getvalue()
@@ -128,10 +135,10 @@ done.2: 2.sql done.1
 create or replace table `p.d.t1` as
 select * from `x`
 """
-        ds = [
-            bqrun.Dependency(*bqrun.parse(sql1), "1.sql")
-        ]
-        dag = bqrun.Dag(ds)
+        with tempfile.TemporaryDirectory() as d:
+            dump(sql1, d, "1")
+            deps = bqrun.parse_files(d)
+        dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
                          set(["done.1"]))
         self.assertEqual(set(dag.targets["done.1"]),
@@ -149,11 +156,11 @@ select * from `p.d.t3`
 create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
-        ds = [
-            bqrun.Dependency(*bqrun.parse(sql1), "1.sql"),
-            bqrun.Dependency(*bqrun.parse(sql2), "2.sql")
-        ]
-        dag = bqrun.Dag(ds)
+        with tempfile.TemporaryDirectory() as d:
+            dump(sql1, d, "1")
+            dump(sql2, d, "2")
+            deps = bqrun.parse_files(d)
+        dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)
         mf_act = sio.getvalue()

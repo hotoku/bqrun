@@ -1,14 +1,10 @@
 import unittest
 import tempfile
-import os
 
 from bqrun import bqrun
 
+from .util import dump
 
-def dump(s, d, f):
-    fpath = os.path.join(d, f) + ".sql"
-    with open(fpath, "w") as fp:
-        fp.write(s)
 
 class TestDependency(unittest.TestCase):
     def test_dep1(self):
@@ -64,7 +60,7 @@ from
         self.assertEqual(len(dep1.sources), 1)
         self.assertEqual(dep1.targets[0], "p.d.t1")
         self.assertEqual(dep1.sources[0], "p.d.t0")
-        
+
         dep2_ = [
             d for d in deps if d.file == "2.sql"
         ]
