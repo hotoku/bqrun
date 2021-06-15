@@ -283,8 +283,8 @@ def setup_alphadag_command_docker(target_dir, output_path):
         "-v", volume,
         "matts966/alphasql:latest",
         "alphadag",
-        "--output_path", f"./{f}",
         "--with_tables",
+        "--output_path", f"./{f}",
         target_dir
     ]
     return ret
