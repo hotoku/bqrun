@@ -4,7 +4,7 @@ from io import StringIO
 import tempfile
 
 
-from .util import dump
+from .util import dump, WorkingDirectory
 
 
 def remove_blank(m):
@@ -30,10 +30,10 @@ class TestDag(unittest.TestCase):
     create or replace table `p.d.t2` as
     select * from `p.d.t1`
     """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
 
         dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
@@ -54,9 +54,9 @@ select * from unnest([1,2,3]);
 create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
 
         dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
@@ -72,9 +72,9 @@ select * from `p.d.t1`
 create or replace table `p.d.t1` as
 select * from unnest([1,2,3])
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
 
         dag = bqrun.Dag(deps)
         sio = StringIO()
@@ -107,10 +107,10 @@ select * from unnest([1,2,3])
 create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
         dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)
@@ -142,9 +142,9 @@ bqrun-clean:
 create or replace table `p.d.t1` as
 select * from `x`
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
         dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
                          set(["done.1"]))
@@ -163,10 +163,10 @@ select * from `p.d.t3`
 create or replace table `p.d.t2` as
 select * from `p.d.t1`
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
         dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)

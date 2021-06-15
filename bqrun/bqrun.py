@@ -299,7 +299,8 @@ def setup_alphadag_command_binary(target_dir, output_path):
     return ret
 
 def parse_files(target_dir, use_docker):
-    # todo: target_dir should be relative path from the current directory. check it.
+    if os.path.isabs(target_dir):
+        raise ValueError("target_dir should be relative path.")
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
         args = [target_dir, fpath]

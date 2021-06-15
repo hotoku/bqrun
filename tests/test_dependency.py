@@ -3,7 +3,7 @@ import tempfile
 
 from bqrun import bqrun
 
-from .util import dump
+from .util import dump, WorkingDirectory
 
 
 class TestDependency(unittest.TestCase):
@@ -18,9 +18,9 @@ select
 from
   `p.d.t2`
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
         dep1 = deps[0]
         self.assertEqual(len(dep1.targets), 1)
         self.assertEqual(len(dep1.sources), 1)
@@ -46,10 +46,10 @@ select
 from
   `p.d.t1`
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
         self.assertEqual(len(deps), 2)
         dep1_ = [
             d for d in deps if d.file == "1.sql"
@@ -82,9 +82,9 @@ select
 from
   `p.d.t101` left join `p.d.t102` using(id)
 """
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d, False)
+            deps = bqrun.parse_files(".", False)
         self.assertEqual(len(deps), 1)
         dep1 = deps[0]
         self.assertEqual(len(dep1.targets), 1)
