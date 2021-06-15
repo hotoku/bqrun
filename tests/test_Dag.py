@@ -33,7 +33,7 @@ class TestDag(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d)
+            deps = bqrun.parse_files(d, False)
 
         dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
@@ -56,7 +56,7 @@ select * from `p.d.t1`
 """
         with tempfile.TemporaryDirectory() as d:
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d)
+            deps = bqrun.parse_files(d, False)
 
         dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
@@ -74,7 +74,7 @@ select * from unnest([1,2,3])
 """
         with tempfile.TemporaryDirectory() as d:
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d)
+            deps = bqrun.parse_files(d, False)
 
         dag = bqrun.Dag(deps)
         sio = StringIO()
@@ -110,7 +110,7 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d:
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d)
+            deps = bqrun.parse_files(d, False)
         dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)
@@ -144,7 +144,7 @@ select * from `x`
 """
         with tempfile.TemporaryDirectory() as d:
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(d)
+            deps = bqrun.parse_files(d, False)
         dag = bqrun.Dag(deps)
         self.assertEqual(set(dag.targets),
                          set(["done.1"]))
@@ -166,7 +166,7 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d:
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(d)
+            deps = bqrun.parse_files(d, False)
         dag = bqrun.Dag(deps)
         sio = StringIO()
         dag.create_makefile(sio)
