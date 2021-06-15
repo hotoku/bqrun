@@ -273,15 +273,39 @@ class ParseError(Exception):
     pass
 
 
-def parse_files(target_dir):
+def setup_alphadag_command_docker(target_dir, output_path):
+    temp_dir, f = os.path.split(output_path)
+    volume = f"{temp_dir}:/home"
+    ret = [
+        "docker",
+        "run",
+        "--rm",
+        "-v", volume,
+        "matts966/alphasql:latest",
+        "alphadag",
+        "--output_path", f"./{f}",
+        "--with_tables",
+        target_dir
+    ]
+    return ret
+
+def setup_alphadag_command_binary(target_dir, output_path):
+    ret = [
+        "alphadag",
+        "--with_tables",
+        "--output_path", output_path,
+        target_dir
+    ]
+    return ret
+
+def parse_files(target_dir, use_docker):
+    # todo: target_dir should be relative path from the current directory. check it.
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
-        ret = subprocess.run([
-            "alphadag",
-            "--with_tables",
-            "--output_path", fpath,
-            target_dir
-        ],
+        args = [target_dir, fpath]
+        cmd = setup_alphadag_command_docker(*args) if use_docker else setup_alphadag_command_binary(*args)
+        ret = subprocess.run(
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
