@@ -275,12 +275,14 @@ class ParseError(Exception):
 
 def setup_alphadag_command_docker(target_dir, output_path):
     temp_dir, f = os.path.split(output_path)
-    volume = f"{temp_dir}:/home"
+    volume_dot = f"{temp_dir}:/bqrun_output"
+    volume_sql = f"{target_dir}:/home"
     ret = [
         "docker",
         "run",
         "--rm",
-        "-v", volume,
+        "-v", volume_dot,
+        "-v", volume_sql,
         "matts966/alphasql:latest",
         "alphadag",
         "--with_tables",

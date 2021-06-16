@@ -6,6 +6,9 @@ import tempfile
 
 class TestCommand(unittest.TestCase):
     def test_docker(self):
+        """
+        Docker利用時のコマンド
+        """
         ret = bqrun.setup_alphadag_command_docker(".", "/hoge/dag.dot")
         self.assertEqual(
             ret,
@@ -13,7 +16,8 @@ class TestCommand(unittest.TestCase):
                 "docker",
                 "run",
                 "--rm",
-                "-v", "/hoge:/home",
+                "-v", "/hoge:/bqrun_output",
+                "-v", ".:/home",
                 "matts966/alphasql:latest",
                 "alphadag",
                 "--with_tables",
@@ -23,6 +27,9 @@ class TestCommand(unittest.TestCase):
         )
 
     def test_binary(self):
+        """
+        バイナリ利用時のコマンド
+        """
         ret = bqrun.setup_alphadag_command_binary(".", "/hoge/dag.dot")
         self.assertEqual(
             ret,
