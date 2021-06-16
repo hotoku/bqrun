@@ -88,6 +88,7 @@ select * from unnest([1,2,3])
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             deps = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", False)
 
         dag = bqrun.Dag(deps)
         sio = StringIO()
