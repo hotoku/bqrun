@@ -24,7 +24,7 @@ class TestCommand(unittest.TestCase):
                 "matts966/alphasql:latest",
                 "alphadag",
                 "--with_tables",
-                "--output_path", "./dag.dot",
+                "--output_path", "/bqrun_output/dag.dot",
                 "."
             ]
         )

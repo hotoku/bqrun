@@ -287,7 +287,7 @@ def setup_alphadag_command_docker(target_dir, output_path):
         "matts966/alphasql:latest",
         "alphadag",
         "--with_tables",
-        "--output_path", f"./{f}",
+        "--output_path", f"/bqrun_output/{f}",
         target_dir
     ]
     return ret
@@ -304,7 +304,6 @@ def setup_alphadag_command_binary(target_dir, output_path):
 def parse_files(target_dir, use_docker):
     if os.path.isabs(target_dir):
         raise ValueError("target_dir should be relative path.")
-    target_dir = os.path.join(os.getcwd(), target_dir)
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
         args = [target_dir, fpath]
@@ -315,6 +314,8 @@ def parse_files(target_dir, use_docker):
             stderr=subprocess.PIPE
         )
         if ret.returncode != 0:
+            import pdb
+            pdb.set_trace()
             raise ParseError(f"""message from alphadag:
 stdout: {ret.stdout.decode("utf-8")}
 stderr: {ret.stderr.decode("utf-8")}""")
