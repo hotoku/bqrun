@@ -134,6 +134,10 @@ bqrun-clean:
         self.assertEqual(remove_blank(mf_act),
                          remove_blank(mf_exp))
 
+    def check3(self, v1, v2, expected):
+        self.assertEqual(v1, expected)
+        self.assertEqual(v2, expected)
+
     def test_dag5(self):
         """
         read tables that is not created by other sql
@@ -145,11 +149,15 @@ select * from `x`
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             deps = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", True)
         dag = bqrun.Dag(deps)
-        self.assertEqual(set(dag.targets),
-                         set(["done.1"]))
-        self.assertEqual(set(dag.targets["done.1"]),
-                         {"1.sql"})
+        dag2 = bqrun.Dag(deps2)
+        self.check3(set(dag.targets),
+                    set(dag2.targets),
+                    set(["done.1"]))
+        self.check3(set(dag.targets["done.1"]),
+                    set(dag2.targets["done.1"]),
+                    {"1.sql"})
 
     def test_dag6(self):
         """
