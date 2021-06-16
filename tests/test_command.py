@@ -2,6 +2,7 @@ import unittest
 from bqrun import bqrun
 from io import StringIO
 import tempfile
+import os
 
 
 class TestCommand(unittest.TestCase):
@@ -10,14 +11,16 @@ class TestCommand(unittest.TestCase):
         Docker利用時のコマンド
         """
         ret = bqrun.setup_alphadag_command_docker(".", "/hoge/dag.dot")
+        volume_output = "/hoge:/bqrun_output"
+        volume_sql = f"{os.path.join(os.getcwd(), '.')}:/home"
         self.assertEqual(
             ret,
             [
                 "docker",
                 "run",
                 "--rm",
-                "-v", "/hoge:/bqrun_output",
-                "-v", ".:/home",
+                "-v", volume_output,
+                "-v", volume_sql,
                 "matts966/alphasql:latest",
                 "alphadag",
                 "--with_tables",

@@ -275,8 +275,9 @@ class ParseError(Exception):
 
 def setup_alphadag_command_docker(target_dir, output_path):
     temp_dir, f = os.path.split(output_path)
+    target_dir_abs = os.path.join(os.getcwd(), target_dir)
     volume_dot = f"{temp_dir}:/bqrun_output"
-    volume_sql = f"{target_dir}:/home"
+    volume_sql = f"{target_dir_abs}:/home"
     ret = [
         "docker",
         "run",
@@ -303,6 +304,7 @@ def setup_alphadag_command_binary(target_dir, output_path):
 def parse_files(target_dir, use_docker):
     if os.path.isabs(target_dir):
         raise ValueError("target_dir should be relative path.")
+    target_dir = os.path.join(os.getcwd(), target_dir)
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
         args = [target_dir, fpath]
@@ -313,7 +315,9 @@ def parse_files(target_dir, use_docker):
             stderr=subprocess.PIPE
         )
         if ret.returncode != 0:
-            raise ParseError(ret.stdout.decode("utf-8"))
+            raise ParseError(f"""message from alphadag:
+stdout: {ret.stdout.decode("utf-8")}
+stderr: {ret.stderr.decode("utf-8")}""")
         with open(fpath) as f:
             sys.stderr.write("=== dotfile ===")
             sys.stderr.write("".join(f.readlines()))
