@@ -314,13 +314,11 @@ def parse_files(target_dir, use_docker):
             stderr=subprocess.PIPE
         )
         if ret.returncode != 0:
-            import pdb
-            pdb.set_trace()
             raise ParseError(f"""message from alphadag:
 stdout: {ret.stdout.decode("utf-8")}
 stderr: {ret.stderr.decode("utf-8")}""")
         with open(fpath) as f:
-            sys.stderr.write("=== dotfile ===")
+            sys.stderr.write("=== dotfile ===\n")
             sys.stderr.write("".join(f.readlines()))
 
         g = read_dot(fpath)
@@ -366,6 +364,7 @@ def setup_parser():
     parser.add_argument("-m", "--makefile", default="Makefile")
     parser.add_argument("-c", "--clean", default=False, action="store_true")
     parser.add_argument("-V", "--version", default=False, action="store_true")
+    parser.add_argument("-b", "--binary", default=False, action="store_true")
     return parser
 
 
@@ -387,7 +386,9 @@ def main(args):
         print_version()
         sys.exit(0)
 
-    dependencies = parse_files(".")
+    use_docker = not args.binary
+
+    dependencies = parse_files(".", use_docker)
     dag = Dag(dependencies)
     create_makefile(dag, args.makefile)
 
