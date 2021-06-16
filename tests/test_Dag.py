@@ -66,12 +66,16 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             deps = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", True)
 
         dag = bqrun.Dag(deps)
-        self.assertEqual(set(dag.targets),
-                         set(["done.1"]))
-        self.assertEqual(set(dag.targets["done.1"]),
-                         set(["1.sql"]))
+        dag2 = bqrun.Dag(deps2)
+        self.check3(set(dag.targets),
+                    set(dag2.targets),
+                    {"done.1"})
+        self.check3(set(dag.targets["done.1"]),
+                    set(dag2.targets["done.1"]),
+                    {"1.sql"})
 
     def test_dag3(self):
         """
