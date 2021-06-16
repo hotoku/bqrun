@@ -21,6 +21,12 @@ class TestDag(unittest.TestCase):
         self.assertEqual(v1, expected)
         self.assertEqual(v2, expected)
 
+    @staticmethod
+    def with_stringio(func):
+        sio = StringIO()
+        func(sio)
+        return sio.getvalue()
+
     def test_dag1(self):
         """
         build dag of 2 targets
@@ -91,9 +97,9 @@ select * from unnest([1,2,3])
             deps2 = bqrun.parse_files(".", False)
 
         dag = bqrun.Dag(deps)
-        sio = StringIO()
-        dag.create_makefile(sio)
-        mf_act = sio.getvalue()
+        dag2 = bqrun.Dag(deps2)
+        mf_act = self.with_stringio(dag.create_makefile)
+        mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
 bqrun-all: done.1
@@ -106,8 +112,9 @@ done.1: 1.sql
 bqrun-clean:
 \trm -f done.*
 """.strip()
-        self.assertEqual(remove_blank(mf_act),
-                         remove_blank(mf_exp))
+        self.check3(remove_blank(mf_act),
+                    remove_blank(mf_act2),
+                    remove_blank(mf_exp))
 
     def test_dag4(self):
         """
@@ -125,10 +132,11 @@ select * from `p.d.t1`
             dump(sql1, d, "1")
             dump(sql2, d, "2")
             deps = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", True)
         dag = bqrun.Dag(deps)
-        sio = StringIO()
-        dag.create_makefile(sio)
-        mf_act = sio.getvalue()
+        dag2 = bqrun.Dag(deps2)
+        mf_act = self.with_stringio(dag.create_makefile)
+        mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
 bqrun-all: done.1 done.2
@@ -145,8 +153,9 @@ done.2: 2.sql done.1
 bqrun-clean:
 \trm -f done.*
 """
-        self.assertEqual(remove_blank(mf_act),
-                         remove_blank(mf_exp))
+        self.check3(remove_blank(mf_act),
+                    remove_blank(mf_act2),
+                    remove_blank(mf_exp))
 
     def test_dag5(self):
         """
