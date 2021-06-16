@@ -194,10 +194,11 @@ select * from `p.d.t1`
             dump(sql1, d, "1")
             dump(sql2, d, "2")
             deps = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", True)
         dag = bqrun.Dag(deps)
-        sio = StringIO()
-        dag.create_makefile(sio)
-        mf_act = sio.getvalue()
+        dag2 = bqrun.Dag(deps2)
+        mf_act = self.with_stringio(dag.create_makefile)
+        mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
 bqrun-all: done.1 done.2
@@ -214,11 +215,15 @@ done.2: 2.sql done.1
 bqrun-clean:
 \trm -f done.*
 """
-        self.assertEqual(remove_blank(mf_act),
-                         remove_blank(mf_exp))
-        self.assertEqual(len(dag.orig_deps), 2)
-        self.assertEqual(dag.orig_deps[0].sources,
-                         ["p.d.t3"])
+        self.check3(remove_blank(mf_act),
+                    remove_blank(mf_act2),
+                    remove_blank(mf_exp))
+        self.check3(len(dag.orig_deps),
+                    len(dag2.orig_deps),
+                    2)
+        self.check3(dag.orig_deps[0].sources,
+                    dag2.orig_deps[0].sources,
+                    ["p.d.t3"])
 
 
 if __name__ == '__main__':
