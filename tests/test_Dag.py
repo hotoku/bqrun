@@ -38,14 +38,19 @@ class TestDag(unittest.TestCase):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
             deps = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", True)
 
         dag = bqrun.Dag(deps)
-        self.assertEqual(set(dag.targets),
-                         set(["done.1", "done.2"]))
-        self.assertEqual(set(dag.targets["done.1"]),
-                         set(["1.sql"]))
-        self.assertEqual(set(dag.targets["done.2"]),
-                         set(["2.sql", "done.1"]))
+        dag2 = bqrun.Dag(deps2)
+        self.check3(set(dag.targets),
+                    set(dag2.targets),
+                    {"done.1", "done.2"})
+        self.check3(set(dag.targets["done.1"]),
+                    set(dag2.targets["done.1"]),
+                    {"1.sql"})
+        self.check3(set(dag.targets["done.2"]),
+                    set(dag2.targets["done.2"]),
+                    {"2.sql", "done.1"})
 
     def test_dag2(self):
         """
