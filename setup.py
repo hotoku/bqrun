@@ -33,7 +33,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="a",
+    description="Query runner for BigQuery. It automatically analyzes dependencies and runs only necessary queries in parallel.",
     entry_points={
         'console_scripts': [
             'bqrun=bqrun.cli:main',
