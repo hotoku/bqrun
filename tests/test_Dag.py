@@ -105,7 +105,7 @@ select * from unnest([1,2,3])
 bqrun-all: done.1
 
 done.1: 1.sql
-\tcat 1.sql | bq query
+\tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean
@@ -142,11 +142,11 @@ select * from `p.d.t1`
 bqrun-all: done.1 done.2
 
 done.1: 1.sql
-\tcat 1.sql | bq query
+\tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 done.2: 2.sql done.1
-\tcat 2.sql | bq query
+\tcat 2.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean
@@ -204,11 +204,11 @@ select * from `p.d.t1`
 bqrun-all: done.1 done.2
 
 done.1: 1.sql
-\tcat 1.sql | bq query
+\tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 done.2: 2.sql done.1
-\tcat 2.sql | bq query
+\tcat 2.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean

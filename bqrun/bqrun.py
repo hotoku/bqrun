@@ -106,7 +106,7 @@ class Dag:
     def rule(self, t):
         ret = """
 {t}: {ss}
-\tcat {f} | bq query
+\tcat {f} | bq query --nouse_legacy_sql
 \ttouch $@
 """.strip().format(
             t=t,
@@ -292,6 +292,7 @@ def setup_alphadag_command_docker(target_dir, output_path):
     ]
     return ret
 
+
 def setup_alphadag_command_binary(target_dir, output_path):
     ret = [
         "alphadag",
@@ -301,13 +302,15 @@ def setup_alphadag_command_binary(target_dir, output_path):
     ]
     return ret
 
+
 def parse_files(target_dir, use_docker):
     if os.path.isabs(target_dir):
         raise ValueError("target_dir should be relative path.")
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
         args = [target_dir, fpath]
-        cmd = setup_alphadag_command_docker(*args) if use_docker else setup_alphadag_command_binary(*args)
+        cmd = setup_alphadag_command_docker(
+            *args) if use_docker else setup_alphadag_command_binary(*args)
         ret = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
