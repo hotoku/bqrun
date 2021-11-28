@@ -326,7 +326,7 @@ stderr: {ret.stderr.decode("utf-8")}""")
 
         g = read_dot(fpath)
 
-    nodes = [dict(g.nodes[n], id=n) for n in g.nodes]
+    nodes = [dict(v, id=k) for k, v in g.nodes.items() if "type" in v]
     queries = [x for x in nodes if x["type"] == "query"]
 
     return [
