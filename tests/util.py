@@ -6,6 +6,7 @@ def dump(s, d, f):
     with open(fpath, "w") as fp:
         fp.write(s)
 
+
 class WorkingDirectory:
     def __init__(self, target_dir):
         self.curdir_backup = None

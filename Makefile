@@ -51,13 +51,13 @@ lint: ## check style with flake8
 	flake8 bqrun tests
 
 test: ## run tests quickly with the default Python
-	python setup.py test
+	python coverage run -m unittest discover -s tests
 
 test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source bqrun setup.py test
+	coverage run -m unittest discover -s tests
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
@@ -73,16 +73,11 @@ docs: ## generate Sphinx HTML documentation, including API docs
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
-release: dist ## package and upload a release
-	twine upload dist/*
-
-dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+release: ## package and upload a release
+	poetry publish
 
 install: clean ## install the package to the active Python's site-packages
-	python setup.py install
+	poetry install
 
 install-develop: clean ## install the package to the active Python's site-packages in develop mode
 	python setup.py develop
