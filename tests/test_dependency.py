@@ -3,7 +3,7 @@ import tempfile
 
 from bqrun import bqrun
 
-from util import dump, WorkingDirectory
+from .util import dump, WorkingDirectory
 
 
 class TestDependency(unittest.TestCase):

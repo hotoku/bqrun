@@ -4,7 +4,7 @@ from io import StringIO
 import tempfile
 
 
-from util import dump, WorkingDirectory
+from .util import dump, WorkingDirectory
 
 
 def remove_blank(m):
