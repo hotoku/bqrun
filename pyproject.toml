@@ -8,6 +8,8 @@ license = "MIT"
 repository = "https://github.com/hotoku/bqrun"
 keywords = ["bigquery"]
 
+[tool.poetry.scripts]
+bqrun = "bqrun.cli:main"
 
 [tool.poetry-dynamic-versioning]
 enable = true
