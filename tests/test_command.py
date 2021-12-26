@@ -1,7 +1,5 @@
 import unittest
 from bqrun import bqrun
-from io import StringIO
-import tempfile
 import os
 
 
@@ -43,4 +41,3 @@ class TestCommand(unittest.TestCase):
                 "."
             ]
         )
- 

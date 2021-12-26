@@ -4,14 +4,14 @@ from io import StringIO
 import tempfile
 
 
-from .util import dump, WorkingDirectory
+from util import dump, WorkingDirectory
 
 
 def remove_blank(m):
     lines = [
-        l for l in
+        line for line in
         map(lambda l: l.strip(), m.split("\n"))
-        if len(l) > 0
+        if len(line) > 0
     ]
     return lines
 

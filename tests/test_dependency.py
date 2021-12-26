@@ -3,7 +3,7 @@ import tempfile
 
 from bqrun import bqrun
 
-from .util import dump, WorkingDirectory
+from util import dump, WorkingDirectory
 
 
 class TestDependency(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestDependency(unittest.TestCase):
         1ファイルしかないシンプルな場合
 """
         sql1 = """
-create or replace table `p.d.t1` as 
+create or replace table `p.d.t1` as
 select
   *
 from
@@ -33,7 +33,7 @@ from
         2ファイルが連続して実行される場合
 """
         sql1 = """
-create or replace table `p.d.t1` as 
+create or replace table `p.d.t1` as
 select
   *
 from
@@ -76,7 +76,7 @@ from
         複数ソースがある場合
 """
         sql1 = """
-create or replace table `p.d.t1` as 
+create or replace table `p.d.t1` as
 select
   *
 from

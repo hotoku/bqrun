@@ -223,7 +223,7 @@ def create_makefile(dag, makefile):
     dag.create_makefile(sio)
     if os.path.exists(makefile):
         with open(makefile, "r") as f:
-            lines = [l.rstrip() for l in f.readlines()]
+            lines = [line.rstrip() for line in f.readlines()]
     else:
         lines = []
     mark = "# === bqrun: 44d98c928b0ecb5795e5182edf8329c828cb3968 ==="
