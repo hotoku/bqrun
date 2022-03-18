@@ -62,11 +62,11 @@ def defined_file(t, deps):
 class Dag:
     @staticmethod
     def done(f):
-        return "done." + re.sub(r"(.*).sql$", r"\1", f)
+        return ".bqrun/done." + re.sub(r"(.*).sql$", r"\1", f)
 
     @staticmethod
     def undone(t):
-        return re.sub(r"^done.", "", t) + ".sql"
+        return re.sub(r"^\.bqrun/done\.", "", t) + ".sql"
 
     def __init__(self, ds):
         self.deps = self.setup_dependencies(ds, True)
@@ -105,7 +105,7 @@ class Dag:
 
     def rule(self, t):
         ret = """
-{t}: {ss}
+{t}: {ss} .bqrun
 \tcat {f} | bq query --nouse_legacy_sql
 \ttouch $@
 """.strip().format(
@@ -127,6 +127,9 @@ bqrun-all: {{ targets }}
 .PHONY: bqrun-clean
 bqrun-clean:
 \trm -f done.*
+
+.bqrun:
+\tmkdir -p $@
 """.lstrip())
         lines = template.render(dict(
             targets=" ".join(sorted(self.targets)),
