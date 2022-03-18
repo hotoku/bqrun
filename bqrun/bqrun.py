@@ -126,7 +126,7 @@ bqrun-all: {{ targets }}
 
 .PHONY: bqrun-clean
 bqrun-clean:
-\trm -f done.*
+\trm -rf .bqrun
 
 .bqrun:
 \tmkdir -p $@
@@ -250,7 +250,8 @@ def run_query(parallel, dryrun, makefile):
 
 
 def create_graph(dag):
-    fname = "graph.dot"
+    os.makedirs(".bqrun", exist_ok=True)
+    fname = ".bqrun/graph.dot"
     with open(fname, "w") as f:
         dag.create_dotfile(f)
     cmd = ["dot", "-Kdot", "-Tpng", fname,
@@ -338,10 +339,7 @@ stderr: {ret.stderr.decode("utf-8")}""")
 
 
 def print_ignore_lines():
-    print("""done.*
-parse.log
-graph.png
-graph.dot""")
+    print(".bqrun")
 
 
 def clean(makefile):
@@ -373,8 +371,9 @@ def setup_parser():
 
 
 def setup_logging():
+    os.makedirs(".bqrun", exist_ok=True)
     logging.basicConfig(
-        filename="parse.log",
+        filename=".bqrun/parse.log",
         level=logging.DEBUG,
         format="[%(levelname)s]%(asctime)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"

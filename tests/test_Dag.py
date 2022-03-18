@@ -97,7 +97,7 @@ bqrun-all: .bqrun/done.1
 
 .PHONY: bqrun-clean
 bqrun-clean:
-\trm -f done.*
+\trm -rf .bqrun
 
 .bqrun:
 \tmkdir -p $@
@@ -137,7 +137,7 @@ bqrun-all: .bqrun/done.1 .bqrun/done.2
 
 .PHONY: bqrun-clean
 bqrun-clean:
-\trm -f done.*
+\trm -rf .bqrun
 
 .bqrun:
 \tmkdir -p $@
@@ -194,7 +194,7 @@ bqrun-all: .bqrun/done.1 .bqrun/done.2
 
 .PHONY: bqrun-clean
 bqrun-clean:
-\trm -f done.*
+\trm -rf .bqrun
 
 .bqrun:
 \tmkdir -p $@
