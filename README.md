@@ -23,4 +23,3 @@ BはAより前に実行される）、順番に実行するためのMakefileを�
 
 ## オプション
 1. `-p=<num>`または`--parallel=<num>`: 並列実行数を指定（デフォルトは8）
-1. `-b`または`--binary`: SQLの依存性解析に利用する[`alphasql`](https://github.com/Matts966/alphasql)を、Dockerを経由せずに利用する。別途`alphadag`のインストールが必要。インストール方法は、`alphasql`のreadmeを参照。
