@@ -20,7 +20,7 @@ from
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(".", True)
+            deps = bqrun.parse_files(".")
         dep1 = deps[0]
         self.assertEqual(len(dep1.targets), 1)
         self.assertEqual(len(dep1.sources), 1)
@@ -49,7 +49,7 @@ from
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(".", True)
+            deps = bqrun.parse_files(".")
         self.assertEqual(len(deps), 2)
         dep1_ = [
             d for d in deps if d.file == "1.sql"
@@ -84,7 +84,7 @@ from
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(".", True)
+            deps = bqrun.parse_files(".")
         self.assertEqual(len(deps), 1)
         dep1 = deps[0]
         self.assertEqual(len(dep1.targets), 1)

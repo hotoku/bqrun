@@ -303,16 +303,13 @@ def setup_alphadag_command_binary(target_dir, output_path):
     return ret
 
 
-def parse_files(target_dir, use_docker):
-    if use_docker == False:
-        raise RuntimeError("use_docker=False is no longer supported")
+def parse_files(target_dir):
     if os.path.isabs(target_dir):
         raise ValueError("target_dir should be relative path.")
     with tempfile.TemporaryDirectory() as d:
         fpath = os.path.join(d, "dag.dot")
         args = [target_dir, fpath]
-        cmd = setup_alphadag_command_docker(
-            *args) if use_docker else setup_alphadag_command_binary(*args)
+        cmd = setup_alphadag_command_docker(*args)
         ret = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
@@ -390,9 +387,7 @@ def main(args):
         print_version()
         sys.exit(0)
 
-    use_docker = True
-
-    dependencies = parse_files(".", use_docker)
+    dependencies = parse_files(".")
     dag = Dag(dependencies)
     create_makefile(dag, args.makefile)
 

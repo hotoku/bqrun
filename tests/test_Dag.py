@@ -42,7 +42,7 @@ class TestDag(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps2 = bqrun.parse_files(".", True)
+            deps2 = bqrun.parse_files(".")
 
         dag2 = bqrun.Dag(deps2)
         self.check3(set(dag2.targets),
@@ -65,7 +65,7 @@ select * from `p.d.t1`
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps2 = bqrun.parse_files(".", True)
+            deps2 = bqrun.parse_files(".")
 
         dag2 = bqrun.Dag(deps2)
         self.check3(set(dag2.targets),
@@ -83,7 +83,7 @@ select * from unnest([1,2,3])
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps2 = bqrun.parse_files(".", True)
+            deps2 = bqrun.parse_files(".")
 
         dag2 = bqrun.Dag(deps2)
         mf_act2 = self.with_stringio(dag2.create_makefile)
@@ -117,7 +117,7 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps2 = bqrun.parse_files(".", True)
+            deps2 = bqrun.parse_files(".")
         dag2 = bqrun.Dag(deps2)
         mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
@@ -149,7 +149,7 @@ select * from `x`
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps2 = bqrun.parse_files(".", True)
+            deps2 = bqrun.parse_files(".")
         dag2 = bqrun.Dag(deps2)
         self.check3(set(dag2.targets),
                     {"done.1"})
@@ -171,7 +171,7 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps2 = bqrun.parse_files(".", True)
+            deps2 = bqrun.parse_files(".")
         dag2 = bqrun.Dag(deps2)
         mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
