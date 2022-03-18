@@ -17,8 +17,7 @@ def remove_blank(m):
 
 
 class TestDag(unittest.TestCase):
-    def check3(self, v1, v2, expected):
-        self.assertEqual(v1, expected)
+    def check3(self, v2, expected):
         self.assertEqual(v2, expected)
 
     @staticmethod
@@ -43,19 +42,14 @@ class TestDag(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(".", False)
             deps2 = bqrun.parse_files(".", True)
 
-        dag = bqrun.Dag(deps)
         dag2 = bqrun.Dag(deps2)
-        self.check3(set(dag.targets),
-                    set(dag2.targets),
+        self.check3(set(dag2.targets),
                     {"done.1", "done.2"})
-        self.check3(set(dag.targets["done.1"]),
-                    set(dag2.targets["done.1"]),
+        self.check3(set(dag2.targets["done.1"]),
                     {"1.sql"})
-        self.check3(set(dag.targets["done.2"]),
-                    set(dag2.targets["done.2"]),
+        self.check3(set(dag2.targets["done.2"]),
                     {"2.sql", "done.1"})
 
     def test_dag2(self):
@@ -71,16 +65,12 @@ select * from `p.d.t1`
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(".", False)
             deps2 = bqrun.parse_files(".", True)
 
-        dag = bqrun.Dag(deps)
         dag2 = bqrun.Dag(deps2)
-        self.check3(set(dag.targets),
-                    set(dag2.targets),
+        self.check3(set(dag2.targets),
                     {"done.1"})
-        self.check3(set(dag.targets["done.1"]),
-                    set(dag2.targets["done.1"]),
+        self.check3(set(dag2.targets["done.1"]),
                     {"1.sql"})
 
     def test_dag3(self):
@@ -93,12 +83,9 @@ select * from unnest([1,2,3])
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(".", False)
-            deps2 = bqrun.parse_files(".", False)
+            deps2 = bqrun.parse_files(".", True)
 
-        dag = bqrun.Dag(deps)
         dag2 = bqrun.Dag(deps2)
-        mf_act = self.with_stringio(dag.create_makefile)
         mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
@@ -112,8 +99,7 @@ done.1: 1.sql
 bqrun-clean:
 \trm -f done.*
 """.strip()
-        self.check3(remove_blank(mf_act),
-                    remove_blank(mf_act2),
+        self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
 
     def test_dag4(self):
@@ -131,11 +117,8 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(".", False)
             deps2 = bqrun.parse_files(".", True)
-        dag = bqrun.Dag(deps)
         dag2 = bqrun.Dag(deps2)
-        mf_act = self.with_stringio(dag.create_makefile)
         mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
@@ -153,8 +136,7 @@ done.2: 2.sql done.1
 bqrun-clean:
 \trm -f done.*
 """
-        self.check3(remove_blank(mf_act),
-                    remove_blank(mf_act2),
+        self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
 
     def test_dag5(self):
@@ -167,15 +149,11 @@ select * from `x`
 """
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
-            deps = bqrun.parse_files(".", False)
             deps2 = bqrun.parse_files(".", True)
-        dag = bqrun.Dag(deps)
         dag2 = bqrun.Dag(deps2)
-        self.check3(set(dag.targets),
-                    set(dag2.targets),
+        self.check3(set(dag2.targets),
                     {"done.1"})
-        self.check3(set(dag.targets["done.1"]),
-                    set(dag2.targets["done.1"]),
+        self.check3(set(dag2.targets["done.1"]),
                     {"1.sql"})
 
     def test_dag6(self):
@@ -193,11 +171,8 @@ select * from `p.d.t1`
         with tempfile.TemporaryDirectory() as d, WorkingDirectory(d):
             dump(sql1, d, "1")
             dump(sql2, d, "2")
-            deps = bqrun.parse_files(".", False)
             deps2 = bqrun.parse_files(".", True)
-        dag = bqrun.Dag(deps)
         dag2 = bqrun.Dag(deps2)
-        mf_act = self.with_stringio(dag.create_makefile)
         mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
@@ -215,14 +190,10 @@ done.2: 2.sql done.1
 bqrun-clean:
 \trm -f done.*
 """
-        self.check3(remove_blank(mf_act),
-                    remove_blank(mf_act2),
+        self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
-        self.check3(len(dag.orig_deps),
-                    len(dag2.orig_deps),
-                    2)
-        self.check3(dag.orig_deps[0].sources,
-                    dag2.orig_deps[0].sources,
+        self.check3(len(dag2.orig_deps), 2)
+        self.check3(dag2.orig_deps[0].sources,
                     ["p.d.t3"])
 
 
