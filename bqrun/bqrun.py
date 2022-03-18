@@ -344,10 +344,9 @@ def print_ignore_lines():
 
 def clean(makefile):
     subprocess.run([
-        "make",
-        "-f",
-        makefile,
-        "bqrun-clean"  # todo: DRY this target name
+        "rm",
+        "-rf",
+        ".bqrun"
     ])
 
 
@@ -364,7 +363,7 @@ def setup_parser():
     parser.add_argument("--project", default=None)
     parser.add_argument("-i", "--ignore", default=False,
                         action="store_true", help="print lines for .gitignore")
-    parser.add_argument("-m", "--makefile", default="Makefile")
+    parser.add_argument("-m", "--makefile", default=".bqrun/Makefile")
     parser.add_argument("-c", "--clean", default=False, action="store_true")
     parser.add_argument("-V", "--version", default=False, action="store_true")
     return parser
@@ -389,13 +388,13 @@ def main(args):
         print_version()
         sys.exit(0)
 
-    dependencies = parse_files(".")
-    dag = Dag(dependencies)
-    create_makefile(dag, args.makefile)
-
     if args.clean:
         clean(args.makefile)
         sys.exit(0)
+
+    dependencies = parse_files(".")
+    dag = Dag(dependencies)
+    create_makefile(dag, args.makefile)
 
     create_graph(dag)
     run_query(args.parallel, args.dry_run, args.makefile)
