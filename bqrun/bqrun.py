@@ -304,6 +304,8 @@ def setup_alphadag_command_binary(target_dir, output_path):
 
 
 def parse_files(target_dir, use_docker):
+    if use_docker == False:
+        raise RuntimeError("use_docker=False is no longer supported")
     if os.path.isabs(target_dir):
         raise ValueError("target_dir should be relative path.")
     with tempfile.TemporaryDirectory() as d:
@@ -367,7 +369,6 @@ def setup_parser():
     parser.add_argument("-m", "--makefile", default="Makefile")
     parser.add_argument("-c", "--clean", default=False, action="store_true")
     parser.add_argument("-V", "--version", default=False, action="store_true")
-    parser.add_argument("-b", "--binary", default=False, action="store_true")
     return parser
 
 
@@ -389,7 +390,7 @@ def main(args):
         print_version()
         sys.exit(0)
 
-    use_docker = not args.binary
+    use_docker = True
 
     dependencies = parse_files(".", use_docker)
     dag = Dag(dependencies)
