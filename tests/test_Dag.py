@@ -158,8 +158,8 @@ select * from `x`
             deps2 = bqrun.parse_files(".")
         dag2 = bqrun.Dag(deps2)
         self.check3(set(dag2.targets),
-                    {"done.1"})
-        self.check3(set(dag2.targets["done.1"]),
+                    {".bqrun/done.1"})
+        self.check3(set(dag2.targets[".bqrun/done.1"]),
                     {"1.sql"})
 
     def test_dag6(self):
@@ -182,19 +182,22 @@ select * from `p.d.t1`
         mf_act2 = self.with_stringio(dag2.create_makefile)
         mf_exp = """
 .PHONY: bqrun-all
-bqrun-all: done.1 done.2
+bqrun-all: .bqrun/done.1 .bqrun/done.2
 
-done.1: 1.sql
+.bqrun/done.1: 1.sql .bqrun
 \tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
-done.2: 2.sql done.1
+.bqrun/done.2: .bqrun/done.1 2.sql .bqrun
 \tcat 2.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean
 bqrun-clean:
 \trm -f done.*
+
+.bqrun:
+\tmkdir -p $@
 """
         self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
