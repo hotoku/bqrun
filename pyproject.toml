@@ -3,23 +3,27 @@ name = "bqrun"
 version = "0.0.0"  # use poetry-dynamic-versioning
 description = "Query runner for BigQuery. It automatically analyzes dependencies and runs only necessary queries in parallel."
 authors = ["Yasunori Horikoshi <horikoshi.et.al@gmail.com>"]
-readme = "readme.rst"
+readme = "README.rst"
 license = "MIT"
 repository = "https://github.com/hotoku/bqrun"
 keywords = ["bigquery"]
 
+
 [tool.poetry.scripts]
 bqrun = "bqrun.cli:main"
+
 
 [tool.poetry-dynamic-versioning]
 enable = true
 style = "pep440"
+
 
 [tool.poetry.dependencies]
 python = "^3.7"
 networkx = "^2.6.3"
 Jinja2 = "^3.0.3"
 pydot = "^1.4.2"
+
 
 [tool.poetry.dev-dependencies]
 pip = "19.2.3"
@@ -32,6 +36,7 @@ coverage = "4.5.4"
 Sphinx = "1.8.5"
 twine = "1.14.0"
 pytest = "^7.1.1"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
