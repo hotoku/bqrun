@@ -91,16 +91,13 @@ select * from unnest([1,2,3])
 .PHONY: bqrun-all
 bqrun-all: .bqrun/done.1
 
-.bqrun/done.1: 1.sql .bqrun
+.bqrun/done.1: 1.sql
 \tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean
 bqrun-clean:
 \trm -rf .bqrun
-
-.bqrun:
-\tmkdir -p $@
 """.strip()
         self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
@@ -127,20 +124,17 @@ select * from `p.d.t1`
 .PHONY: bqrun-all
 bqrun-all: .bqrun/done.1 .bqrun/done.2
 
-.bqrun/done.1: 1.sql .bqrun
+.bqrun/done.1: 1.sql
 \tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
-.bqrun/done.2: .bqrun/done.1 2.sql .bqrun
+.bqrun/done.2: .bqrun/done.1 2.sql
 \tcat 2.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean
 bqrun-clean:
 \trm -rf .bqrun
-
-.bqrun:
-\tmkdir -p $@
 """
         self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
@@ -184,20 +178,17 @@ select * from `p.d.t1`
 .PHONY: bqrun-all
 bqrun-all: .bqrun/done.1 .bqrun/done.2
 
-.bqrun/done.1: 1.sql .bqrun
+.bqrun/done.1: 1.sql
 \tcat 1.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
-.bqrun/done.2: .bqrun/done.1 2.sql .bqrun
+.bqrun/done.2: .bqrun/done.1 2.sql
 \tcat 2.sql | bq query --nouse_legacy_sql
 \ttouch $@
 
 .PHONY: bqrun-clean
 bqrun-clean:
 \trm -rf .bqrun
-
-.bqrun:
-\tmkdir -p $@
 """
         self.check3(remove_blank(mf_act2),
                     remove_blank(mf_exp))
