@@ -105,7 +105,7 @@ class Dag:
 
     def rule(self, t):
         ret = """
-{t}: {ss} .bqrun
+{t}: {ss}
 \tcat {f} | bq query --nouse_legacy_sql
 \ttouch $@
 """.strip().format(
@@ -127,9 +127,6 @@ bqrun-all: {{ targets }}
 .PHONY: bqrun-clean
 bqrun-clean:
 \trm -rf .bqrun
-
-.bqrun:
-\tmkdir -p $@
 """.lstrip())
         lines = template.render(dict(
             targets=" ".join(sorted(self.targets)),
