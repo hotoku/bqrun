@@ -16,6 +16,9 @@ from networkx.drawing.nx_pydot import read_dot
 import os
 
 
+from .tempfile import TempFile
+
+
 def flatten(lss):
     if len(lss) == 0:
         return []
@@ -307,8 +310,8 @@ def setup_alphadag_command_binary(target_dir, output_path):
 def parse_files(target_dir):
     if os.path.isabs(target_dir):
         raise ValueError("target_dir should be relative path.")
-    with tempfile.TemporaryDirectory() as d:
-        fpath = os.path.join(d, "dag.dot")
+    fpath = os.path.join(os.getcwd(), "dag.dot")
+    with TempFile(fpath):
         args = [target_dir, fpath]
         cmd = setup_alphadag_command_docker(*args)
         ret = subprocess.run(
