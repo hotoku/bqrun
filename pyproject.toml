@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bqrun"
-version = "2.0.1"
+version = "2.0.2"
 description = "Query runner for BigQuery. It automatically analyzes dependencies and runs only necessary queries in parallel."
 authors = ["Yasunori Horikoshi <horikoshi.et.al@gmail.com>"]
 readme = "README.md"
