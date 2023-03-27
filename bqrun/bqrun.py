@@ -260,7 +260,7 @@ def strip_quote(s):
     return s.strip('"`')
 
 
-def make_dependency(graph, nodes, query_node, file_):
+def make_dependency(graph, query_node, file_):
     sources = [graph.nodes[n] for n in graph.predecessors(query_node["id"])]
     targets = [graph.nodes[n] for n in graph.successors(query_node["id"])]
     s2 = [s["label"] for s in sources]
@@ -330,7 +330,7 @@ stderr: {ret.stderr.decode("utf-8")}""")
     queries = [x for x in nodes if x["type"] == "query"]
 
     return [
-        make_dependency(g, nodes, q, q["label"])
+        make_dependency(g, q, q["label"])
         for q in queries
     ]
 
@@ -339,7 +339,7 @@ def print_ignore_lines():
     print(".bqrun")
 
 
-def clean(makefile):
+def clean():
     subprocess.run([
         "rm",
         "-rf",
@@ -386,7 +386,7 @@ def main(args):
         sys.exit(0)
 
     if args.clean:
-        clean(args.makefile)
+        clean()
         sys.exit(0)
 
     dependencies = parse_files(".")
