@@ -243,7 +243,7 @@ def run_query(parallel, dryrun, makefile):
     cmd = ["make", "-j", str(parallel), "-f", makefile, "bqrun-all"]
     if dryrun:
         cmd.append("-n")
-    subprocess.run(cmd)
+    subprocess.run(cmd, check=True)
 
 
 def create_graph(dag):
